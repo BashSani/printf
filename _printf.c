@@ -1,57 +1,60 @@
 #include "main.h"
+
 void print_buffer(char buffer[], int *buff_ind);
+
 /**
- * _printf - function
+ * _printf - Printf
  * @format: format
  * Return: 0
  */
 int _printf(const char *format, ...)
 {
-	int r, s = 0, t = 0;
-	int u, v, w, x, buff_ind = 0;
-	va_list y;
-	char z;
+	int i, printed = 0, printed_chars = 0;
+	int flags, width, precision, size, buff_ind = 0;
+	va_list list;
+	char buffer[BUFF_SIZE];
 
 	if (format == NULL)
 		return (-1);
 
-	va_start(y, format);
+	va_start(list, format);
 
-	for (r = 0; format && format[r] != '\0'; r++)
+	for (i = 0; format && format[i] != '\0'; i++)
 	{
-		if (format[r] != '%')
+		if (format[i] != '%')
 		{
-			buffer[buff_ind++] = format[r];
-			if (buff_ind == z)
+			buffer[buff_ind++] = format[i];
+			if (buff_ind == BUFF_SIZE)
 				print_buffer(buffer, &buff_ind);
-			t++;
+			printed_chars++;
 		}
 		else
 		{
 			print_buffer(buffer, &buff_ind);
-			u = get_u(format, &r);
-			v = get_v(format, &r, y);
-			w = get_w(format, &r, y);
-			x = get_x(format, &r);
-			++r;
-			s = handle_print(format, &r, y, buffer, u, v, w, x);
-			if (s == -1)
+			flags = get_flags(format, &i);
+			width = get_width(format, &i, list);
+			precision = get_precision(format, &i, list);
+			size = get_size(format, &i);
+			++i;
+			printed = handle_print(format, &i, list, buffer,
+				flags, width, precision, size);
+			if (printed == -1)
 				return (-1);
-			t += s;
+			printed_chars += printed;
 		}
 	}
 
 	print_buffer(buffer, &buff_ind);
 
-	va_end(y);
+	va_end(list);
 
-	return (t);
+	return (printed_chars);
 }
 
 /**
- * print_buffer - Print buffer
+ * print_buffer - Print buff
  * @buffer: Array
- * @buff_ind: Length.
+ * @buff_ind: Index
  */
 void print_buffer(char buffer[], int *buff_ind)
 {
